@@ -24,7 +24,10 @@ class State(Enum):
 
 left_stick = None
 right_stick = None
+xbox_left_stick = None
+xbox_right_stick = None
 button_box_buttons = []
+xbox_button_box_buttons = []
 driver_buttons = []
 app = None
 widget = None
@@ -32,11 +35,16 @@ robot_state = State.AUTO
 robot_enabled = False
 left_twist = 0
 right_twist = 0
+xbox_left_trigger = 0
+xbox_right_trigger = 0
 
 class MainWindow(QMainWindow):
     def __init__(self):
         global left_stick
         global right_stick
+        global xbox_left_stick
+        global xbox_right_stick
+
         super().__init__()
 
         self.setWindowTitle("My App")
@@ -50,7 +58,7 @@ class MainWindow(QMainWindow):
         enable_disable_button.clicked.connect(lambda checked, button=enable_disable_button: toggle_enable_disable(button))
 
         radio_box = QWidget()
-        radio_box_layout = QHBoxLayout()
+        radio_box_layout = QGridLayout()
         radio_box.setLayout(radio_box_layout)
         autonomous = QRadioButton("Autonomous")
         autonomous.setChecked(True)
@@ -59,9 +67,9 @@ class MainWindow(QMainWindow):
         teleop.toggled.connect(lambda checked: set_robot_state(State.TELEOP))
         test = QRadioButton("Test")
         test.toggled.connect(lambda checked: set_robot_state(State.TEST))
-        radio_box_layout.addWidget(autonomous)
-        radio_box_layout.addWidget(teleop)
-        radio_box_layout.addWidget(test)
+        radio_box_layout.addWidget(autonomous, 0, 0)
+        radio_box_layout.addWidget(teleop, 1, 0)
+        radio_box_layout.addWidget(test, 2, 0)
 
         left_buttons = QWidget()
         right_buttons = QWidget()
@@ -96,7 +104,7 @@ class MainWindow(QMainWindow):
         left_slider_bar.setMinimum(-20)
         left_slider_bar.setMaximum(20)
         left_slider_bar.valueChanged.connect(lambda value: set_left_twist(value))
-        left_slider_bar.sliderReleased.connect(lambda button=left_slider_bar: release_left_twist(button))
+        left_slider_bar.sliderReleased.connect(lambda button=left_slider_bar: release_slider(button))
         left_slider_layout.addWidget(left_slider_bar)
 
         right_slider = QWidget()
@@ -107,11 +115,60 @@ class MainWindow(QMainWindow):
         right_slider_bar.setMinimum(-20)
         right_slider_bar.setMaximum(20)
         right_slider_bar.valueChanged.connect(lambda value: set_right_twist(value))
-        right_slider_bar.sliderReleased.connect(lambda button=right_slider_bar: release_right_twist(button))
+        right_slider_bar.sliderReleased.connect(lambda button=right_slider_bar: release_slider(button))
         right_slider_layout.addWidget(right_slider_bar)
+
+        xbox_sticks = QWidget()
+        xbox_sticks_layout = QGridLayout()
+        xbox_sticks.setLayout(xbox_sticks_layout)
 
         left_stick = UIJoystick()
         right_stick = UIJoystick()
+
+        xbox_left_stick = UIJoystick()
+        xbox_right_stick = UIJoystick()
+
+        xbox_left_trigger = QSlider(Qt.Horizontal)
+        xbox_left_trigger.setFixedSize(150, 20)
+        xbox_left_trigger.setMinimum(0)
+        xbox_left_trigger.setMaximum(20)
+        xbox_left_trigger.valueChanged.connect(lambda value: set_xbox_left_trigger(value))
+        xbox_left_trigger.sliderReleased.connect(lambda button=xbox_left_trigger: release_slider(button))
+
+        xbox_right_trigger = QSlider(Qt.Horizontal)
+        xbox_right_trigger.setFixedSize(150, 20)
+        xbox_right_trigger.setMinimum(0)
+        xbox_right_trigger.setMaximum(20)
+        xbox_right_trigger.valueChanged.connect(lambda value: set_xbox_right_trigger(value))
+        xbox_right_trigger.sliderReleased.connect(lambda button=xbox_right_trigger: release_slider(button))
+
+        xbox_sticks_layout.addWidget(xbox_left_stick, 0, 0)
+        xbox_sticks_layout.addWidget(xbox_right_stick, 0, 1)
+        xbox_sticks_layout.addWidget(xbox_left_trigger, 1, 0)
+        xbox_sticks_layout.addWidget(xbox_right_trigger, 1, 1)
+
+        xbox_button_box = QWidget()
+        xbox_button_box_layout = QGridLayout()
+        xbox_button_box.setLayout(xbox_button_box_layout)
+
+        xbox_button_map = {
+            0 : "A",
+            1 : "B",
+            2 : "X",
+            3 : "Y",
+            4 : "LB",
+            5 : "RB",
+            6 : "Select",
+            7 : "Start",
+            8 : "LS",
+            9 : "RS",
+        }
+
+        for i in range(0, 10):
+            button = QPushButton(xbox_button_map[i])
+            button.pressed.connect(lambda index = i: press_xbox_button_box(index))
+            button.released.connect(lambda index = i: release_xbox_button_box(index))
+            xbox_button_box_layout.addWidget(button, i / 3, i % 3)
 
         button_box = QWidget()
         button_box_layout = QGridLayout()
@@ -127,19 +184,26 @@ class MainWindow(QMainWindow):
                 index += 1
 
         ml.addWidget(enable_disable_button, 0, 0)
-        ml.addWidget(radio_box, 0, 2)
+        ml.addWidget(radio_box, 0, 1)
         ml.addWidget(left_stick, 1, 0)
         ml.addWidget(right_stick, 1, 1)
         ml.addWidget(left_slider, 2,0)
         ml.addWidget(right_slider, 2,1)
         ml.addWidget(left_buttons, 3, 0)
         ml.addWidget(right_buttons, 3, 1)
-        ml.addWidget(button_box, 1, 2)
+        ml.addWidget(xbox_sticks, 1, 2)
+        ml.addWidget(xbox_button_box, 2, 2)
+        ml.addWidget(button_box, 1, 3)
 
-def release_left_twist(button):
-    button.setValue(0)
+def set_xbox_left_trigger(value):
+    global xbox_left_trigger
+    xbox_left_trigger = value / 20.0
 
-def release_right_twist(button):
+def set_xbox_right_trigger(value):
+    global xbox_right_trigger
+    xbox_right_trigger = value / 20.0
+
+def release_slider(button):
     button.setValue(0)
 
 def set_left_twist(value):
@@ -170,6 +234,14 @@ def release_button_box(i):
     global button_box_buttons
     button_box_buttons[i] = 0
 
+def press_xbox_button_box(i):
+    global xbox_button_box_buttons
+    xbox_button_box_buttons[i] = 1
+
+def release_xbox_button_box(i):
+    global xbox_button_box_buttons
+    xbox_button_box_buttons[i] = 0
+
 def press_driver(i):
     global driver_buttons
     driver_buttons[i] = 1
@@ -196,6 +268,10 @@ def ros_func():
     global robot_status
     global left_stick
     global right_stick
+    global xbox_left_stick
+    global xbox_right_stick
+    global xbox_left_trigger
+    global xbox_right_trigger
     global button_box_buttons
     global driver_buttons
     global left_twist
@@ -234,8 +310,20 @@ def ros_func():
 
             joystick_status.joysticks.append(driver_joystick)
 
+            xbox_joystick = ck_ros_base_msgs_node.msg._Joystick.Joystick()
+            xbox_joystick.index = 1
+            xbox_joystick.buttons = xbox_button_box_buttons
+            xbox_joystick.axes.append(xbox_left_stick.joystickDirection()[0])
+            xbox_joystick.axes.append(xbox_left_stick.joystickDirection()[1])
+            xbox_joystick.axes.append(xbox_left_trigger)
+            xbox_joystick.axes.append(xbox_right_trigger)
+            xbox_joystick.axes.append(xbox_right_stick.joystickDirection()[0])
+            xbox_joystick.axes.append(xbox_right_stick.joystickDirection()[1])
+
+            joystick_status.joysticks.append(xbox_joystick)
+
             operator_joystick = ck_ros_base_msgs_node.msg._Joystick.Joystick()
-            operator_joystick.index = 1
+            operator_joystick.index = 2
             operator_joystick.buttons = button_box_buttons
             joystick_status.joysticks.append(operator_joystick)
 
@@ -289,6 +377,9 @@ def ros_main(node_name):
 
     for i in range(0,12):
         button_box_buttons.append(0)
+
+    for i in range(0,10):
+        xbox_button_box_buttons.append(0)
 
     for i in range(0,4):
         driver_buttons.append(0)
