@@ -44,13 +44,15 @@ class Joystick(QWidget):
         if not self.grabCenter:
             return [0,0]
         normVector = QLineF(self._center(), self.movingOffset)
+        print(normVector)
         result = []
-        result.append(((normVector.x2() - 25) / 50) - 1)
+        result.append(((normVector.x2() - normVector.x1()) / 50))
         if normVector.x2() < 1 :
             result[0] = 0
-        result.append((((normVector.y2() - 25) / 50) - 1) * -1)
+        result.append((((normVector.y2() - normVector.y1()) / 50)))
         if normVector.y2() < 1 :
             result[1] = 0
+        print(result)
         return result
         currentDistance = normVector.length()
         angle = normVector.angle()

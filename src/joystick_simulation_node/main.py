@@ -15,6 +15,12 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 from joystick_simulation_node.joystick import Joystick as UIJoystick
 from ck_ros_base_msgs_node.msg import *
+from enum import Enum
+
+class State(Enum):
+    AUTO = 1
+    TELEOP = 2
+    TEST = 3
 
 left_stick = None
 right_stick = None
@@ -22,6 +28,8 @@ button_box_buttons = []
 driver_buttons = []
 app = None
 widget = None
+robot_state = State.AUTO
+robot_enabled = False
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -35,6 +43,30 @@ class MainWindow(QMainWindow):
         ml = QGridLayout()
         cw.setLayout(ml)
         self.setCentralWidget(cw)
+
+        robot_control = QWidget()
+        robot_control_layout = QGridLayout()
+        robot_control.setLayout(robot_control_layout)
+
+        enable_disable_button = QPushButton("Disabled")
+        enable_disable_button.clicked.connect(lambda checked, button=enable_disable_button: toggle_enable_disable(button))
+        robot_control_layout.addWidget(enable_disable_button, 0, 0)
+
+        radio_box = QWidget()
+        radio_box_layout = QHBoxLayout()
+        radio_box.setLayout(radio_box_layout)
+        autonomous = QRadioButton("Autonomous")
+        autonomous.setChecked(True)
+        autonomous.toggled.connect(lambda checked: set_robot_state(State.AUTO))
+        teleop = QRadioButton("Teleop")
+        teleop.toggled.connect(lambda checked: set_robot_state(State.TELEOP))
+        test = QRadioButton("Test")
+        test.toggled.connect(lambda checked: set_robot_state(State.TEST))
+        radio_box_layout.addWidget(autonomous)
+        radio_box_layout.addWidget(teleop)
+        radio_box_layout.addWidget(test)
+
+        robot_control_layout.addWidget(radio_box, 0, 1)
 
         left_buttons = QWidget()
         right_buttons = QWidget()
@@ -77,11 +109,24 @@ class MainWindow(QMainWindow):
                 button_box_layout.addWidget(button, j, i)
                 index += 1
 
-        ml.addWidget(left_stick, 0, 0)
-        ml.addWidget(right_stick, 0, 1)
-        ml.addWidget(left_buttons, 1, 0)
-        ml.addWidget(right_buttons, 1, 1)
-        ml.addWidget(button_box, 0, 2)
+        ml.addWidget(robot_control, 0, 0)
+        ml.addWidget(left_stick, 1, 0)
+        ml.addWidget(right_stick, 1, 1)
+        ml.addWidget(left_buttons, 2, 0)
+        ml.addWidget(right_buttons, 2, 1)
+        ml.addWidget(button_box, 1, 2)
+
+def toggle_enable_disable(button):
+    global robot_enabled
+    robot_enabled = not robot_enabled
+    if robot_enabled:
+        button.setText("Enabled")
+        return
+    button.setText("Disabled")
+
+def set_robot_state(state):
+    global robot_state
+    robot_state = state
 
 def press_button_box(i):
     global button_box_buttons
@@ -121,7 +166,8 @@ def ros_func():
     global driver_buttons
 
     rate = rospy.Rate(100)
-    statusPublisher = rospy.Publisher(name='/JoystickSimulation', data_class=ck_ros_base_msgs_node.msg.Joystick_Status, queue_size=50, tcp_nodelay=True)
+    joystickStatusPublisher = rospy.Publisher(name='/JoystickSimulation', data_class=ck_ros_base_msgs_node.msg.Joystick_Status, queue_size=50, tcp_nodelay=True)
+    robotStatusPublisher = rospy.Publisher(name='/RobotSimulation', data_class=ck_ros_base_msgs_node.msg.Robot_Status, queue_size=50, tcp_nodelay=True)
 
     # Put your code in the appropriate sections in this if statement/while loop
     while not rospy.is_shutdown():
@@ -155,7 +201,26 @@ def ros_func():
             operator_joystick.buttons = button_box_buttons
             joystick_status.joysticks.append(operator_joystick)
 
-            statusPublisher.publish(joystick_status)
+            joystickStatusPublisher.publish(joystick_status)
+
+        override_robot_status = ck_ros_base_msgs_node.msg._Robot_Status.Robot_Status()
+        if robot_enabled:
+            if robot_state == State.AUTO:
+                override_robot_status.robot_state = override_robot_status.AUTONOMOUS
+            elif robot_state == State.TELEOP:
+                override_robot_status.robot_state = override_robot_status.TELEOP
+            else:
+                override_robot_status.robot_state = override_robot_status.TEST
+        else:
+            override_robot_status.robot_state = override_robot_status.DISABLED
+
+        override_robot_status.alliance = override_robot_status.RED
+        override_robot_status.match_time = -1
+        override_robot_status.game_data = ''
+        override_robot_status.selected_auto = 0
+        override_robot_status.is_connected = True
+
+        robotStatusPublisher.publish(override_robot_status)
 
         rate.sleep()
 
