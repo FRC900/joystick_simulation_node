@@ -11,8 +11,8 @@ from frc_robot_utilities_py_node.RobotStatusHelperPy import RobotStatusHelperPy,
 
 import sys
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from joystick_simulation_node.joystick import Joystick as UIJoystick
 from ck_ros_base_msgs_node.msg import *
 from enum import Enum
@@ -30,6 +30,8 @@ app = None
 widget = None
 robot_state = State.AUTO
 robot_enabled = False
+left_twist = 0
+right_twist = 0
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -44,13 +46,8 @@ class MainWindow(QMainWindow):
         cw.setLayout(ml)
         self.setCentralWidget(cw)
 
-        robot_control = QWidget()
-        robot_control_layout = QGridLayout()
-        robot_control.setLayout(robot_control_layout)
-
         enable_disable_button = QPushButton("Disabled")
         enable_disable_button.clicked.connect(lambda checked, button=enable_disable_button: toggle_enable_disable(button))
-        robot_control_layout.addWidget(enable_disable_button, 0, 0)
 
         radio_box = QWidget()
         radio_box_layout = QHBoxLayout()
@@ -66,8 +63,6 @@ class MainWindow(QMainWindow):
         radio_box_layout.addWidget(teleop)
         radio_box_layout.addWidget(test)
 
-        robot_control_layout.addWidget(radio_box, 0, 1)
-
         left_buttons = QWidget()
         right_buttons = QWidget()
         left_buttons_layout = QGridLayout()
@@ -76,22 +71,44 @@ class MainWindow(QMainWindow):
         right_buttons.setLayout(right_buttons_layout)
 
         left_button_1 = QPushButton("0")
-        left_button_1.mousePressEvent = lambda checked, i=0: press_driver(i)
-        left_button_1.mouseReleaseEvent = lambda checked, i=0: release_driver(i)
+        left_button_1.pressed.connect(lambda i=0: press_driver(i))
+        left_button_1.released.connect(lambda i=0: release_driver(i))
         left_button_2 = QPushButton("1")
-        left_button_2.mousePressEvent = lambda checked, i=1: press_driver(i)
-        left_button_2.mouseReleaseEvent = lambda checked, i=1: release_driver(i)
+        left_button_2.pressed.connect(lambda i=1: press_driver(i))
+        left_button_2.released.connect(lambda i=1: release_driver(i))
         right_button_1 = QPushButton("2")
-        right_button_1.mousePressEvent = lambda checked, i=2: press_driver(i)
-        right_button_1.mouseReleaseEvent = lambda checked, i=2: release_driver(i)
+        right_button_1.pressed.connect(lambda i=2: press_driver(i))
+        right_button_1.released.connect(lambda i=2: release_driver(i))
         right_button_2 = QPushButton("3")
-        right_button_2.mousePressEvent = lambda checked, i=3: press_driver(i)
-        right_button_2.mouseReleaseEvent = lambda checked, i=3: release_driver(i)
+        right_button_2.pressed.connect(lambda i=3: press_driver(i))
+        right_button_2.released.connect(lambda i=3: release_driver(i))
 
         left_buttons_layout.addWidget(left_button_1, 0, 0)
         left_buttons_layout.addWidget(left_button_2, 0, 1)
         right_buttons_layout.addWidget(right_button_1, 0, 0)
         right_buttons_layout.addWidget(right_button_2, 0, 1)
+
+        left_slider = QWidget()
+        left_slider_layout = QGridLayout()
+        left_slider.setLayout(left_slider_layout)
+        left_slider_bar = QSlider(Qt.Horizontal)
+        left_slider_bar.setFixedSize(150, 20)
+        left_slider_bar.setMinimum(-20)
+        left_slider_bar.setMaximum(20)
+        left_slider_bar.valueChanged.connect(lambda value: set_left_twist(value))
+        left_slider_bar.sliderReleased.connect(lambda button=left_slider_bar: release_left_twist(button))
+        left_slider_layout.addWidget(left_slider_bar)
+
+        right_slider = QWidget()
+        right_slider_layout = QGridLayout()
+        right_slider.setLayout(right_slider_layout)
+        right_slider_bar = QSlider(Qt.Horizontal)
+        right_slider_bar.setFixedSize(150, 20)
+        right_slider_bar.setMinimum(-20)
+        right_slider_bar.setMaximum(20)
+        right_slider_bar.valueChanged.connect(lambda value: set_right_twist(value))
+        right_slider_bar.sliderReleased.connect(lambda button=right_slider_bar: release_right_twist(button))
+        right_slider_layout.addWidget(right_slider_bar)
 
         left_stick = UIJoystick()
         right_stick = UIJoystick()
@@ -104,17 +121,34 @@ class MainWindow(QMainWindow):
         for j in range(0,4):
             for i in range(0,3):
                 button = QPushButton(str(index))
-                button.mousePressEvent = lambda event, i=index: press_button_box(i)
-                button.mouseReleaseEvent = lambda event, i=index: release_button_box(i)
+                button.pressed.connect(lambda i=index: press_button_box(i))
+                button.released.connect(lambda i=index: release_button_box(i))
                 button_box_layout.addWidget(button, j, i)
                 index += 1
 
-        ml.addWidget(robot_control, 0, 0)
+        ml.addWidget(enable_disable_button, 0, 0)
+        ml.addWidget(radio_box, 0, 2)
         ml.addWidget(left_stick, 1, 0)
         ml.addWidget(right_stick, 1, 1)
-        ml.addWidget(left_buttons, 2, 0)
-        ml.addWidget(right_buttons, 2, 1)
+        ml.addWidget(left_slider, 2,0)
+        ml.addWidget(right_slider, 2,1)
+        ml.addWidget(left_buttons, 3, 0)
+        ml.addWidget(right_buttons, 3, 1)
         ml.addWidget(button_box, 1, 2)
+
+def release_left_twist(button):
+    button.setValue(0)
+
+def release_right_twist(button):
+    button.setValue(0)
+
+def set_left_twist(value):
+    global left_twist
+    left_twist = value / 20.0
+
+def set_right_twist(value):
+    global right_twist
+    right_twist = value / 20.0
 
 def toggle_enable_disable(button):
     global robot_enabled
@@ -164,6 +198,8 @@ def ros_func():
     global right_stick
     global button_box_buttons
     global driver_buttons
+    global left_twist
+    global right_twist
 
     rate = rospy.Rate(100)
     joystickStatusPublisher = rospy.Publisher(name='/JoystickSimulation', data_class=ck_ros_base_msgs_node.msg.Joystick_Status, queue_size=50, tcp_nodelay=True)
@@ -189,8 +225,10 @@ def ros_func():
 
             driver_joystick.axes.append(left_joystick_data[0])
             driver_joystick.axes.append(left_joystick_data[1])
+            driver_joystick.axes.append(left_twist)
             driver_joystick.axes.append(right_joystick_data[0])
             driver_joystick.axes.append(right_joystick_data[1])
+            driver_joystick.axes.append(right_twist)
 
             driver_joystick.buttons = driver_buttons
 
