@@ -152,16 +152,16 @@ class MainWindow(QMainWindow):
         xbox_button_box.setLayout(xbox_button_box_layout)
 
         xbox_button_map = {
-            0 : "A",
-            1 : "B",
-            2 : "X",
-            3 : "Y",
-            4 : "LB",
-            5 : "RB",
-            6 : "Select",
-            7 : "Start",
-            8 : "LS",
-            9 : "RS",
+            0 : "A (0)",
+            1 : "B (1)",
+            2 : "X (2)",
+            3 : "Y (3)",
+            4 : "LB (4)",
+            5 : "RB (5)",
+            6 : "Select (6)",
+            7 : "Start (7)",
+            8 : "LS (8)",
+            9 : "RS (9)",
         }
 
         for i in range(0, 10):
