@@ -353,19 +353,6 @@ def ros_func():
 def ros_spin():
     rospy.spin()
 
-def term_handler(signal, frame):
-    global app
-    global widget
-
-    if widget is not None:
-        widget.close()
-    if app is not None:
-        app.quit()
-        app.exit()
-    os.kill(os.getpid(), 9)
-    sys.exit()
-    os._exit(0)
-
 def ros_main(node_name):
     global button_box_buttons
     global driver_buttons
@@ -373,7 +360,7 @@ def ros_main(node_name):
     rospy.init_node(node_name)
     register_for_robot_updates()
 
-    signal.signal(signal.SIGINT, term_handler)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     for i in range(0,12):
         button_box_buttons.append(0)
