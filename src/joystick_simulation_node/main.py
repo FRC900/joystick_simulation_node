@@ -193,12 +193,12 @@ class MainWindow(QMainWindow):
         ml.addWidget(enable_disable_button, 0, 0)
         ml.addWidget(radio_box, 0, 1)
         if show_drive:
-            ml.addwidget(left_stick, 1, 0)
-            ml.addwidget(right_stick, 1, 1)
-            ml.addwidget(left_slider, 2,0)
-            ml.addwidget(right_slider, 2,1)
-            ml.addwidget(left_buttons, 3, 0)
-            ml.addwidget(right_buttons, 3, 1)
+            ml.addWidget(left_stick, 1, 0)
+            ml.addWidget(right_stick, 1, 1)
+            ml.addWidget(left_slider, 2,0)
+            ml.addWidget(right_slider, 2,1)
+            ml.addWidget(left_buttons, 3, 0)
+            ml.addWidget(right_buttons, 3, 1)
         if show_xbox:
             ml.addWidget(xbox_sticks, 1, 2)
             ml.addWidget(xbox_button_box, 2, 2)
