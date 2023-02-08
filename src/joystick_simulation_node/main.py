@@ -22,6 +22,10 @@ class State(Enum):
     TELEOP = 2
     TEST = 3
 
+show_drive = True
+show_xbox = True
+show_button_box = True
+
 left_stick = None
 right_stick = None
 xbox_left_stick = None
@@ -40,6 +44,9 @@ xbox_right_trigger = 0
 
 class MainWindow(QMainWindow):
     def __init__(self):
+        global show_drive
+        global show_xbox
+        global show_button_box
         global left_stick
         global right_stick
         global xbox_left_stick
@@ -47,7 +54,7 @@ class MainWindow(QMainWindow):
 
         super().__init__()
 
-        self.setWindowTitle("My App")
+        self.setWindowTitle('Joystick Simulator')
 
         cw = QWidget()
         ml = QGridLayout()
@@ -191,9 +198,11 @@ class MainWindow(QMainWindow):
         ml.addWidget(right_slider, 2,1)
         ml.addWidget(left_buttons, 3, 0)
         ml.addWidget(right_buttons, 3, 1)
-        ml.addWidget(xbox_sticks, 1, 2)
-        ml.addWidget(xbox_button_box, 2, 2)
-        ml.addWidget(button_box, 1, 3)
+        if show_xbox:
+            ml.addWidget(xbox_sticks, 1, 2)
+            ml.addWidget(xbox_button_box, 2, 2)
+        if show_button_box:
+            ml.addWidget(button_box, 1, 3)
 
 def set_xbox_left_trigger(value):
     global xbox_left_trigger
