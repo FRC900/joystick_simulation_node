@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         cw.setLayout(ml)
         self.setCentralWidget(cw)
 
-        enable_disable_button = QPushButton("Disabled")
+        enable_disable_button = QPushButton("Enable")
         enable_disable_button.clicked.connect(lambda checked, button=enable_disable_button: toggle_enable_disable(button))
 
         radio_box = QWidget()
@@ -218,9 +218,9 @@ def toggle_enable_disable(button):
     global robot_enabled
     robot_enabled = not robot_enabled
     if robot_enabled:
-        button.setText("Enabled")
+        button.setText("Disable")
         return
-    button.setText("Disabled")
+    button.setText("Enable")
 
 def set_robot_state(state):
     global robot_state
