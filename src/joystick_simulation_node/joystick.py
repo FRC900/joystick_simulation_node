@@ -48,7 +48,7 @@ class Joystick(QWidget):
         result.append(((normVector.x2() - normVector.x1()) / 50))
         if normVector.x2() < 1 :
             result[0] = 0
-        result.append((((normVector.y2() - normVector.y1()) / 50)))
+        result.append(-1 * (((normVector.y2() - normVector.y1()) / 50)))
         if normVector.y2() < 1 :
             result[1] = 0
         return result
