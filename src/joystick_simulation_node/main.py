@@ -199,11 +199,11 @@ class MainWindow(QMainWindow):
             ml.addWidget(right_slider, 2,1)
             ml.addWidget(left_buttons, 3, 0)
             ml.addWidget(right_buttons, 3, 1)
-        if show_xbox:
-            ml.addWidget(xbox_sticks, 1, 2)
-            ml.addWidget(xbox_button_box, 2, 2)
         if show_button_box:
-            ml.addWidget(button_box, 1, 3)
+            ml.addWidget(button_box, 1, 2)
+        if show_xbox:
+            ml.addWidget(xbox_sticks, 1, 3)
+            ml.addWidget(xbox_button_box, 2, 3)
 
 def set_xbox_left_trigger(value):
     global xbox_left_trigger
@@ -321,7 +321,7 @@ def ros_func():
             joystick_status.joysticks.append(driver_joystick)
 
             xbox_joystick = ck_ros_base_msgs_node.msg._Joystick.Joystick()
-            xbox_joystick.index = 1
+            xbox_joystick.index = 2
             xbox_joystick.buttons = xbox_button_box_buttons
             xbox_joystick.axes.append(xbox_left_stick.joystickDirection()[0])
             xbox_joystick.axes.append(xbox_left_stick.joystickDirection()[1])
@@ -333,7 +333,7 @@ def ros_func():
             joystick_status.joysticks.append(xbox_joystick)
 
             operator_joystick = ck_ros_base_msgs_node.msg._Joystick.Joystick()
-            operator_joystick.index = 2
+            operator_joystick.index = 1
             operator_joystick.buttons = button_box_buttons
             joystick_status.joysticks.append(operator_joystick)
 
