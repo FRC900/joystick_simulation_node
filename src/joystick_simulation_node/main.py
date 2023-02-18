@@ -41,6 +41,7 @@ left_twist = 0
 right_twist = 0
 xbox_left_trigger = 0
 xbox_right_trigger = 0
+pov = 0
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -97,9 +98,35 @@ class MainWindow(QMainWindow):
         right_button_2 = QPushButton("3")
         right_button_2.pressed.connect(lambda i=3: press_driver(i))
         right_button_2.released.connect(lambda i=3: release_driver(i))
+        
+        pov_button_0 = QPushButton("0°")
+        pov_button_0.pressed.connect(lambda i=0: press_pov(i))
+        pov_button_0.released.connect(release_pov)
+        pov_button_1 = QPushButton("45°")
+        pov_button_1.pressed.connect(lambda i=1: press_pov(i))
+        pov_button_1.released.connect(release_pov)
+        pov_button_2 = QPushButton("90°")
+        pov_button_2.pressed.connect(lambda i=2: press_pov(i))
+        pov_button_2.released.connect(release_pov)
+        pov_button_3 = QPushButton("135°")
+        pov_button_3.pressed.connect(lambda i=3: press_pov(i))
+        pov_button_3.released.connect(release_pov)
+        pov_button_4 = QPushButton("180°")
+        pov_button_4.pressed.connect(lambda i=4: press_pov(i))
+        pov_button_4.released.connect(release_pov)
+        pov_button_5 = QPushButton("225°")
+        pov_button_5.pressed.connect(lambda i=5: press_pov(i))
+        pov_button_5.released.connect(release_pov)
+        pov_button_6 = QPushButton("270°")
+        pov_button_6.pressed.connect(lambda i=6: press_pov(i))
+        pov_button_6.released.connect(release_pov)
+        pov_button_7 = QPushButton("315°")
+        pov_button_7.pressed.connect(lambda i=7: press_pov(i))
+        pov_button_7.released.connect(release_pov)
 
         left_buttons_layout.addWidget(left_button_1, 0, 0)
         left_buttons_layout.addWidget(left_button_2, 0, 1)
+       
         right_buttons_layout.addWidget(right_button_1, 0, 0)
         right_buttons_layout.addWidget(right_button_2, 0, 1)
 
@@ -131,6 +158,7 @@ class MainWindow(QMainWindow):
 
         left_stick = UIJoystick()
         right_stick = UIJoystick()
+        #pov = QWidget()
 
         xbox_left_stick = UIJoystick()
         xbox_right_stick = UIJoystick()
@@ -189,6 +217,14 @@ class MainWindow(QMainWindow):
                 button.released.connect(lambda i=index: release_button_box(i))
                 button_box_layout.addWidget(button, j, i)
                 index += 1
+        button_box_layout.addWidget(pov_button_0, 5, 1)
+        button_box_layout.addWidget(pov_button_1, 5, 2)
+        button_box_layout.addWidget(pov_button_2, 6, 2)
+        button_box_layout.addWidget(pov_button_3, 7, 2)
+        button_box_layout.addWidget(pov_button_4, 7, 1)
+        button_box_layout.addWidget(pov_button_5, 7, 0)
+        button_box_layout.addWidget(pov_button_6, 6, 0)
+        button_box_layout.addWidget(pov_button_7, 5, 0)
 
         ml.addWidget(enable_disable_button, 0, 0)
         ml.addWidget(radio_box, 0, 1)
@@ -260,6 +296,14 @@ def release_driver(i):
     global driver_buttons
     driver_buttons[i] = 0
 
+def press_pov(i):
+    global pov
+    pov = i * 45
+
+def release_pov():
+    global pov
+    pov = -1
+
 def window():
     global app
     global widget
@@ -286,6 +330,7 @@ def ros_func():
     global driver_buttons
     global left_twist
     global right_twist
+    global pov
 
     rate = rospy.Rate(100)
     joystickStatusPublisher = rospy.Publisher(name='/JoystickSimulation', data_class=ck_ros_base_msgs_node.msg.Joystick_Status, queue_size=50, tcp_nodelay=True)
@@ -317,6 +362,7 @@ def ros_func():
             driver_joystick.axes.append(right_twist)
 
             driver_joystick.buttons = driver_buttons
+            driver_joystick.povs = [pov]
 
             joystick_status.joysticks.append(driver_joystick)
 
