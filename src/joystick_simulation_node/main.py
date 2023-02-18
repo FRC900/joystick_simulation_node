@@ -41,7 +41,7 @@ left_twist = 0
 right_twist = 0
 xbox_left_trigger = 0
 xbox_right_trigger = 0
-pov = 0
+pov = -1
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -362,7 +362,6 @@ def ros_func():
             driver_joystick.axes.append(right_twist)
 
             driver_joystick.buttons = driver_buttons
-            driver_joystick.povs = [pov]
 
             joystick_status.joysticks.append(driver_joystick)
 
@@ -375,6 +374,7 @@ def ros_func():
             xbox_joystick.axes.append(xbox_right_trigger)
             xbox_joystick.axes.append(xbox_right_stick.joystickDirection()[0])
             xbox_joystick.axes.append(xbox_right_stick.joystickDirection()[1])
+            xbox_joystick.povs = [pov]
 
             joystick_status.joysticks.append(xbox_joystick)
 
