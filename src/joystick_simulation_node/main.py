@@ -17,6 +17,9 @@ from joystick_simulation_node.joystick import Joystick as UIJoystick
 from ck_ros_base_msgs_node.msg import *
 from enum import Enum
 
+class Alliance(Enum):
+    RED = 0
+    BLUE = 1
 class State(Enum):
     AUTO = 1
     TELEOP = 2
@@ -36,6 +39,7 @@ driver_buttons = []
 app = None
 widget = None
 robot_state = State.AUTO
+robot_alliance = Alliance.RED
 robot_enabled = False
 left_twist = 0
 right_twist = 0
@@ -78,6 +82,19 @@ class MainWindow(QMainWindow):
         radio_box_layout.addWidget(autonomous, 0, 0)
         radio_box_layout.addWidget(teleop, 1, 0)
         radio_box_layout.addWidget(test, 2, 0)
+
+
+        alliance_radio_box = QWidget()
+        alliance_radio_box_layout = QGridLayout()
+        alliance_radio_box.setLayout(alliance_radio_box_layout)
+        red = QRadioButton("Red")
+        red.setChecked(True)
+        red.toggled.connect(lambda checked: set_robot_alliance(Alliance.RED))
+        blue = QRadioButton("Blue")
+        blue.toggled.connect(lambda checked: set_robot_alliance(Alliance.BLUE))
+        alliance_radio_box_layout.addWidget(red, 0, 0)
+        alliance_radio_box_layout.addWidget(blue, 1, 0)
+
 
         left_buttons = QWidget()
         right_buttons = QWidget()
@@ -228,6 +245,7 @@ class MainWindow(QMainWindow):
 
         ml.addWidget(enable_disable_button, 0, 0)
         ml.addWidget(radio_box, 0, 1)
+        ml.addWidget(alliance_radio_box, 0, 2)
         if show_drive:
             ml.addWidget(left_stick, 1, 0)
             ml.addWidget(right_stick, 1, 1)
@@ -271,6 +289,10 @@ def toggle_enable_disable(button):
 def set_robot_state(state):
     global robot_state
     robot_state = state
+
+def set_robot_alliance(alliance):
+    global robot_alliance
+    robot_alliance = alliance
 
 def press_button_box(i):
     global button_box_buttons
@@ -396,7 +418,7 @@ def ros_func():
         else:
             override_robot_status.robot_state = override_robot_status.DISABLED
 
-        override_robot_status.alliance = override_robot_status.RED
+        override_robot_status.alliance = override_robot_status.RED if robot_alliance == Alliance.RED else override_robot_status.BLUE
         override_robot_status.match_time = -1
         override_robot_status.game_data = ''
         override_robot_status.selected_auto = 0
