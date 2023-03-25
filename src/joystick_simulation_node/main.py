@@ -60,6 +60,8 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle('Joystick Simulator')
+        icon = self.style().standardIcon(QStyle.SP_TitleBarMenuButton)
+        self.setWindowIcon(icon)
 
         cw = QWidget()
         ml = QGridLayout()
