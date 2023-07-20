@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(joystick_simulation_node)
 
-find_package(catkin REQUIRED COMPONENTS message_generation roscpp rospy std_msgs ck_ros_msgs_node frc_robot_utilities_py_node)
+find_package(catkin REQUIRED COMPONENTS message_generation roscpp rospy sensor_msgs )
 
 # add_message_files(
 #   FILES
@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation roscpp rospy std_msgs
 # )
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime roscpp rospy std_msgs ck_ros_msgs_node frc_robot_utilities_py_node
+  CATKIN_DEPENDS message_runtime roscpp rospy sensor_msgs
 )
 
 # include_directories(include ${catkin_INCLUDE_DIRS})

@@ -17,9 +17,8 @@
 
   <depend>roscpp</depend>
   <depend>rospy</depend>
-  <depend>std_msgs</depend>
-  <depend>frc_robot_utilities_py_node</depend>
-  <depend>ck_ros_msgs_node</depend>
+  <depend>sensor_msgs</depend>
+
 
   <test_depend>rostest</test_depend>
 </package>
