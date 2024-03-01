@@ -116,6 +116,15 @@ class MainWindow(QMainWindow):
 
         #Toggle Button definitions
         #These are the three switch states for the gui, there are three of them, the name can be changed to whatever you want by replacing the current text in the " " to whatever you desire.
+        
+        dial_box = QDial()
+        dial_box_layout = QGridLayout()
+        dial_box.setLayout(dial_box_layout)
+        dial_box.setMinimum(0)
+        dial_box.setMaximum(20)
+        dial_box.setValue(0)
+        dial_box.setRange(0,20)
+        dial_box.setNotchesVisible(True)
 
         radio_box = QWidget()
         radio_box_layout = QGridLayout()
@@ -466,7 +475,8 @@ class MainWindow(QMainWindow):
             ml.addWidget(left_buttons, 3, 0)
             ml.addWidget(right_buttons, 3, 1)
         if show_button_box:
-            ml.addWidget(button_box, 1, 2)
+            ml.addWidget(button_box, 2, 2)
+            ml.addWidget(dial_box, 1, 2)
         if show_xbox:
             ml.addWidget(xbox_sticks, 1, 3)
             ml.addWidget(xbox_button_box, 2, 3)
@@ -580,15 +590,15 @@ def joystick_controller_callback(msg):
         magnify_ly = msg.leftStickY * -100
         xbox_left_stick.move_joystick(magnify_lx, magnify_ly)
         #print(magnify_x, magnify_y)
-    else:
-        xbox_left_stick.set_zero()
+    #else:
+        #xbox_left_stick.set_zero()
 
     if (msg.rightStickX != (0.0) and msg.rightStickY != (0.0)):
         magnify_rx = msg.rightStickX * 100
         magnify_ry = msg.rightStickX * -100
         xbox_right_stick.move_joystick(magnify_rx, magnify_ry)
-    else:
-        xbox_right_stick.set_zero()
+    #else:
+    #    xbox_right_stick.set_zero()
 
 
     
@@ -711,6 +721,25 @@ def button_box_controller_callback(msg):
     
 
 
+
+#
+#class Window(QWidget):
+#    def __init__(self):
+#        QWidget.__init__(self)
+#        layout = QGridLayout()
+#        self.setLayout(layout)
+#        self.dial = QDial()
+#        self.dial.setMinimum(0)
+#        self.dial.setMaximum(100)
+#        self.dial.setValue(40)
+#        self.dial.valueChanged.connect(self.sliderMoved)
+#        layout.addWidget(self.dial)
+#
+#    def sliderMoved(self):
+#        print("Dial value = %i" % (self.dial.value()))
+#
+
+
 #add button box controller callback functions into here.
         
 '''
@@ -743,7 +772,10 @@ def window():
 
     app = QApplication(sys.argv)
     widget = MainWindow()
+    #screen = Window()
 
+
+    #screen.show()
     widget.show()
     sys.exit(app.exec())
 
@@ -859,7 +891,7 @@ def ros_main(node_name):
 
     for i in range(0,4):
         driver_buttons.append(0)
-    2
+    
     for i in range(0,14):
         pov_buttons.append(0)
     
