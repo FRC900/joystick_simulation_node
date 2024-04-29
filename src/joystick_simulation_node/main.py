@@ -221,7 +221,7 @@ class Controller():
         i = len(self._triggers) - 1
         self._joysticks_layout.addWidget(self._triggers[i]._q_slider, 1, i)
 
-    def add_auto_mode_spinner(self, x_pos: int, y_pos: int, first_auto_button: int = 19, num_auto_buttons: int = 13):
+    def add_auto_mode_spinner(self, x_pos: int, y_pos: int, first_auto_button: int = 18, num_auto_buttons: int = 13):
         self._auto_mode_spinner = AutoModeSpinner(num_auto_buttons=num_auto_buttons)
         self._button_layout.addWidget(self._auto_mode_spinner.get_widget(), x_pos, y_pos)
         self._first_auto_button = first_auto_button
@@ -337,7 +337,7 @@ class MainWindow(QMainWindow):
             button_box_controller.add_switch(["Not Safe", "Safe"], [None, 6], 9, 4, initial_state=1)
 
             # Auto mode buttons are 1-hot encoded starting from index 19
-            button_box_controller.add_auto_mode_spinner(0, 4, first_auto_button=19, num_auto_buttons=13)
+            button_box_controller.add_auto_mode_spinner(0, 4, first_auto_button=18, num_auto_buttons=13)
 
             # Add button box to the main window layout
             ml.addWidget(button_box_controller.get_buttons_widget(), 1, 1)
