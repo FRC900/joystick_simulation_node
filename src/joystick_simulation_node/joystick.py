@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import *
 import sys
 from enum import Enum
 
+
+
 class Direction(Enum):
     Left = 0
     Right = 1
@@ -25,6 +27,8 @@ class Joystick(QWidget):
         painter.setBrush(Qt.black)
         painter.drawEllipse(self._centerEllipse())
 
+
+
     def _centerEllipse(self):
         if self.grabCenter:
             return QRectF(-20, -20, 40, 40).translated(self.movingOffset)
@@ -35,10 +39,13 @@ class Joystick(QWidget):
 
 
     def _boundJoystick(self, point):
+  
         limitLine = QLineF(self._center(), point)
         if (limitLine.length() > self.__maxDistance):
             limitLine.setLength(self.__maxDistance)
         return limitLine.p2()
+
+
 
     def joystickDirection(self):
         if not self.grabCenter:
@@ -46,38 +53,60 @@ class Joystick(QWidget):
         normVector = QLineF(self._center(), self.movingOffset)
         result = []
         result.append(((normVector.x2() - normVector.x1()) / 50))
+        #print(normVector.x2())
+        #print(normVector.x1())
         if normVector.x2() < 1 :
             result[0] = 0
         result.append(-1 * (((normVector.y2() - normVector.y1()) / 50)))
+        #print(normVector.y2())
+        #print(normVector.y1())
         if normVector.y2() < 1 :
             result[1] = 0
         return result
-        currentDistance = normVector.length()
-        angle = normVector.angle()
+ 
 
-        distance = min(currentDistance / self.__maxDistance, 1.0)
-        if 45 <= angle < 135:
-            return (Direction.Up, distance)
-        elif 135 <= angle < 225:
-            return (Direction.Left, distance)
-        elif 225 <= angle < 315:
-            return (Direction.Down, distance)
-        return (Direction.Right, distance)
+    
+    def move_joystick(self, x, y):
+        x_y = QPointF(x,y)
+        self.movingOffset = self._boundJoystick(x_y)
+        self.grabCenter = True
+        self.update()
 
+    
+    def set_zero(self):
+        self.grabCenter = False
+        self.movingOffset = QPointF(0,0)
+        self.update()
+    
+    
+    
 
+    
+
+    #mouse press event
     def mousePressEvent(self, ev):
         self.grabCenter = self._centerEllipse().contains(ev.pos())
         return super().mousePressEvent(ev)
 
+    #figure out what mouse release event is 
     def mouseReleaseEvent(self, event):
         self.grabCenter = False
         self.movingOffset = QPointF(0, 0)
         self.update()
 
+    #figure out what mouse press event does relative to toehr commands
     def mouseMoveEvent(self, event):
-        if self.grabCenter:
-            self.movingOffset = self._boundJoystick(event.pos())
-            self.update()
+        self.movingOffset = self._boundJoystick(event.pos())
+        
+
+        self.grabCenter = True
+        self.update()
+
+
+    
+    
+
+
 
 if __name__ == '__main__':
     # Create main application window
