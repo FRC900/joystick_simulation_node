@@ -52,12 +52,12 @@ class Joystick(QWidget):
             return [0,0]
         normVector = QLineF(self._center(), self.movingOffset)
         result = []
-        result.append(((normVector.x2() - normVector.x1()) / 50))
+        result.append(-1 * ((normVector.x2() - normVector.x1()) / 50))
         #print(normVector.x2())
         #print(normVector.x1())
         if normVector.x2() < 1 :
             result[0] = 0
-        result.append(-1 * (((normVector.y2() - normVector.y1()) / 50)))
+        result.append(-1 * ((normVector.y2() - normVector.y1()) / 50))
         #print(normVector.y2())
         #print(normVector.y1())
         if normVector.y2() < 1 :

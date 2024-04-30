@@ -448,7 +448,9 @@ def ros_pub_function():
             xbox_left_trigger = xbox_controller.get_trigger_value(0)
             xbox_right_trigger = xbox_controller.get_trigger_value(1)
 
-            xbox_joystick_msg.axes = [xbox_left_stick_data[0], xbox_left_stick_data[1], xbox_left_trigger, xbox_right_trigger, xbox_right_stick_data[0], xbox_right_stick_data[1]] + xbox_controller.get_pov_state()
+            # TODO - I'm really not sure what's causing the need for a - on the 2nd stick Y axis, but it seems
+            # to be there for both sim and real joysticks. Figure out why this is true.
+            xbox_joystick_msg.axes = [xbox_left_stick_data[0], xbox_left_stick_data[1], xbox_left_trigger, xbox_right_trigger, -xbox_right_stick_data[0], xbox_right_stick_data[1]] + xbox_controller.get_pov_state()
             xbox_joystick_msg.buttons = xbox_controller.get_buttons()
 
             xbox_controller_publisher.publish(xbox_joystick_msg)
