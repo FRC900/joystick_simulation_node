@@ -139,9 +139,9 @@ class POV(Switch):
 class AutoModeSpinner():
     def __init__(self, num_auto_buttons):
         self._q_spin_box = QSpinBox()
-        self._q_spin_box.setRange(0, 20)
+        self._q_spin_box.setRange(1, 20)
         self._q_spin_box.valueChanged.connect(self.set_value)
-        self._value = 0
+        self._value = 1
         self._num_auto_modes = num_auto_buttons
 
     def set_value(self, value: int):
